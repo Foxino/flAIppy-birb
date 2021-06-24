@@ -24,7 +24,7 @@ class Pipes():
         w.blit(BOT_PIPE, (self.x, self.bot_y))
         ##pygame.draw.rect(w, self.color, pygame.Rect(self.x, self.bot_y, PIPE_W, PIPE_H))
     def setup(self, x):
-        self.scored = True
+        self.scored = False
         self.x = x
         self.offset = randrange(0, 250)
         self.top_y = -400 + self.offset

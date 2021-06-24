@@ -18,7 +18,9 @@ pygame.display.set_caption("FlAIppy Birb")
 pipe = Pipes(WIDTH, WIDTH)
 pipe2 = Pipes(WIDTH + (WIDTH/2), WIDTH)
 birb = Birb(WIDTH/2, HEIGHT/4)
+
 birbs = [birb]
+pipes = [pipe, pipe2]
 
 def main():
     gameRunning = True
@@ -49,10 +51,11 @@ def draw():
     ## background colour
     WIN.fill((0, 200, 255))
 
-    pipe.draw(WIN)
-    pipe2.draw(WIN)
+    for pipe in pipes:
+        pipe.draw(WIN)
 
-    birb.draw(WIN, [pipe, pipe2])
+    for birb in birbs:
+        birb.draw(WIN, pipes)
 
     if any(x.alive == True for x in birbs) == False:
         text = font.render("Game Over!", True, (255,255,255))
