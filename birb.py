@@ -17,6 +17,7 @@ class Birb():
         self.vel = 0
         self.alive = True
         self.score = 0
+        self.lastPipe = None
 
     def draw(self, w, pipes):
 
@@ -37,9 +38,9 @@ class Birb():
             if (self.x + BIRB_SIZE) > pipe.x and self.x < (pipe.x + pipe.pipe_w):
                 if(self.y < pipe.top_b_y or (self.y+BIRB_SIZE) > pipe.bot_y):
                     self.alive = False
-            elif ((self.x + BIRB_SIZE) > (pipe.x + pipe.pipe_w) and pipe.scored == False and self.alive == True):
-                pipe.scored = True
+            elif ((self.x + BIRB_SIZE) > (pipe.x + pipe.pipe_w) and self.alive == True and pipe != self.lastPipe):
                 self.score += 1
+                self.lastPipe = pipe
                 
 
         w.blit(self.image, (self.x, self.y))
