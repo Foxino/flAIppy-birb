@@ -55,10 +55,7 @@ def main(birbs):
         draw(birbs)
             
         if MODE == MODE_AI:
-            
-
-
-
+            print("@?")
     
     pygame.quit()
 
