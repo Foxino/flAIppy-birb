@@ -73,7 +73,7 @@ class Birb():
         w.blit(self.image, (self.x, self.y))
 
         ## if bird goes off screen, it dies
-        if self.y > 600 or self.y < 0:
+        if self.y > 550 or self.y < 0:
             self.alive = False
 
 
