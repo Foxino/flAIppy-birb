@@ -22,6 +22,14 @@ class Birb():
         self.nextPipe = None
         self.debug = debug
 
+    def reset(self, x, y):
+        self.y = y
+        self.x = x
+        self.vel = 0
+        self.alive = True
+        self.score = 0
+        self.lastPipe = None
+        self.nextPipe = None
 
     def draw(self, w, pipes):
 
@@ -65,7 +73,7 @@ class Birb():
         w.blit(self.image, (self.x, self.y))
 
         ## if bird goes off screen, it dies
-        if self.y > 500 or self.y < -100:
+        if self.y > 400 or self.y < 0:
             self.alive = False
 
 

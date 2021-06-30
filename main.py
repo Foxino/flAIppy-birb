@@ -2,11 +2,12 @@ import pygame
 from birbpipe import Pipes
 from birb import Birb
 from qbot import QBot
+import math
 import argparse
 
 
 ## game window dimensions
-WIDTH, HEIGHT = 700, 450
+WIDTH, HEIGHT = 450, 450
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.font.init()
@@ -23,18 +24,26 @@ DEBUG, MODE = False, MODE_HUMAN
 ## window paras
 FPS = 60
 
-def main(birbs):
+def main(birbs, clear):
     gameRunning = True
     clock = pygame.time.Clock()
 
     ## in AI mode, creates the bot and attaches the agent to it.
     if MODE == MODE_AI:
         bot = QBot()
+        if clear == True:
+            bot.reset()
         bot.addAgent(birbs[0])
+    else:
+        bot = None
+
+    t = 0
 
     ## game loop
     while gameRunning:
         clock.tick(FPS)
+
+        t += 1
 
         ## window close event
         for event in pygame.event.get():
@@ -42,7 +51,10 @@ def main(birbs):
                 gameRunning = False
             if event.type == pygame.KEYDOWN and MODE != MODE_AI:
                 if event.key == pygame.K_SPACE:
-                    birbs[0].flap()
+                    if any(x.alive == True for x in birbs) == False:
+                        reset(birbs, pipes)
+                    else:
+                        birbs[0].flap()
 
         ## in AI mode, checks for action
         if MODE == MODE_AI:
@@ -52,28 +64,54 @@ def main(birbs):
 
         
         ##draw function
-        draw(birbs)
+        draw(birbs, bot, math.floor(t/60))
             
         if MODE == MODE_AI:
-            print("@?")
+            bot.reward()
+            ## if birb perished, start over
+            if any(x.alive == True for x in birbs) == False:
+                bot.count += 1
+                bot.saveQValues()
+                if bot.record < math.floor(t/60):
+                    bot.record = math.floor(t/60)
+                t = 0
+                reset(birbs, pipes)
+
+    if MODE == MODE_AI:
+        bot.saveQValues()
     
     pygame.quit()
 
+def reset(birbs, pipes):
+    for birb in birbs:
+        birb.reset(WIDTH/4, HEIGHT/4)
+    pipes[0].reset(WIDTH, WIDTH)
+    pipes[1].reset(WIDTH + (WIDTH/2), WIDTH)
 
-def draw(birbs):
+def draw(birbs, bot, t):
     ## background colour
     WIN.fill((0, 200, 255))
 
-    for pipe in pipes:
+    for pipe in pipes: 
         pipe.draw(WIN)
 
     for birb in birbs:
         birb.draw(WIN, pipes)
 
-    if any(x.alive == True for x in birbs) == False:
+    if any(x.alive == True for x in birbs) == False and MODE == MODE_HUMAN:
         text = font.render("Game Over!", True, (255,255,255))
-        WIN.blit(text, (WIDTH/2, HEIGHT/2))
+        text2 = font.render("Press SPACE to try again!", True, (255,255,255))
+        WIN.blit(text, (WIDTH * .2, HEIGHT * .4))
+        WIN.blit(text2, (5, HEIGHT * .6))
 
+    
+    if MODE == MODE_AI:
+        text = font.render("Generation : {0}".format(bot.count), True, (255,255,255))
+        text2 = font.render("Record : {0}s".format(bot.record), True, (255,255,255))
+        text3 = font.render("Current : {0}s".format(t), True, (255,255,255))
+        WIN.blit(text, (5, 5))
+        WIN.blit(text2, (5, 45))
+        WIN.blit(text3, (5, 85))
     ## update window
     pygame.display.update()
     
@@ -83,10 +121,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--bot', '-b', action='store_true', help='Run with bot.')
     parser.add_argument('--showdebug', '-d', action='store_true', help='Show debug info')
+    parser.add_argument('--clear', '-c',action='store_true', help='Clear training data')
 
     args = parser.parse_args()
-
+ 
     DEBUG = args.showdebug
+    CLEAR = args.clear
 
     if args.bot == True:
         MODE = MODE_AI
@@ -95,8 +135,8 @@ if __name__ == "__main__":
         MODE = MODE_HUMAN
         pygame.display.set_caption("FlAIppy Birb - Human Mode")
 
-    birb = Birb(WIDTH/2, HEIGHT/4, DEBUG)
+    birb = Birb(WIDTH/4, HEIGHT/2, DEBUG)
 
     birbs = [birb]
 
-    main(birbs)
+    main(birbs, CLEAR)
