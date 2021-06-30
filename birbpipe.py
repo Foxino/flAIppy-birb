@@ -30,7 +30,7 @@ class Pipes():
         self.scored = False
         self.x = x
         if first == True:
-            self.offset = 150
+            self.offset = 300
         else:
             self.offset = randrange(0, 250)
         self.top_y = -400 + self.offset

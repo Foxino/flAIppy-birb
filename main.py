@@ -7,7 +7,7 @@ import argparse
 
 
 ## game window dimensions
-WIDTH, HEIGHT = 450, 450
+WIDTH, HEIGHT = 450, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.font.init()
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         MODE = MODE_HUMAN
         pygame.display.set_caption("FlAIppy Birb - Human Mode")
 
-    birb = Birb(WIDTH/4, HEIGHT/2, DEBUG)
+    birb = Birb(WIDTH/4, HEIGHT * .75, DEBUG)
 
     birbs = [birb]
 

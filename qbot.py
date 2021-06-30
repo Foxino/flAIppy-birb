@@ -13,7 +13,6 @@ class QBot(object):
         self.initialState = "(0)(0)(0)"
         self.lastState = self.initialState
         self.lastAction = 0
-        self.rewardFunction = {True: 1, False: -1000}
         self.initStateIfNull(self.lastState)
         self.record = 0
 
@@ -45,9 +44,9 @@ class QBot(object):
             ## v = birbs current velocity
             "v" : self.birb.vel,
             ## x = horizontal distance to next pipe
-            "x" : math.floor((self.birb.nextPipe.x - self.birb.x)),
+            "x" : math.floor((self.birb.nextPipe.x - self.birb.x) /3),
             ## y = vertical distance to bottom of next top pipe
-            "y" : math.floor((self.birb.nextPipe.top_b_y - self.birb.y))
+            "y" : math.floor((self.birb.nextPipe.top_b_y - self.birb.y) /3)
         }
         x =  "({0})({1})({2})".format(states["v"], states["x"], states["y"])
         return x
@@ -56,8 +55,16 @@ class QBot(object):
         with open(self.tableLocation, 'w') as out:
             json.dump({"qv" : self.QValues, "i" : self.count, "r" : self.record}, out)
 
+    def rewardFunction(self, val):
+        dtp_y = abs((self.birb.nextPipe.top_b_y + 200) - self.birb.y) / 100
+        if val == True:
+            ## dynamic reward, slightly higher value for being closer to middle of pipe Y 
+            return (7 - dtp_y) / 7
+        else:
+            return -1000
+
     def reward(self):
-        r = self.rewardFunction[self.birb.alive]
+        r = self.rewardFunction(self.birb.alive)
 
         self.initStateIfNull(self.get_current_state())
 
